@@ -18,10 +18,8 @@ def intro():
     time.sleep(2)
 
 
-def make_board(hero_x, hero_y, level):
+def make_board(hero_x, hero_y, status):
     arguments = dict(locals().items())  # !!!!!!!!!!!
-    if arguments['level'] == 2:
-        print("boom")
     os.system('clear')
     board_size = 25
     # colors v
@@ -52,7 +50,7 @@ def make_board(hero_x, hero_y, level):
         for y in range(1, board_size - 1):
             board[x][y] = ground
 
-    if level == 1:
+    if arguments['status']['level'] == 1:
         # tree placement
         for loc in range(1, 6):
             board[loc][3] = tree
@@ -146,7 +144,7 @@ def make_board(hero_x, hero_y, level):
         # if items["basket"] == 0:
         #     board[20][11] = basket
 
-    if level == 2:
+    if arguments['status']['level'] == 2:
         board[5][5] = tree
         board[3][7] = tree
         board[3][7] = tree
@@ -238,7 +236,7 @@ def make_board(hero_x, hero_y, level):
         # item placement
         board[2][22] = basket
 
-    if level == 3:
+    if arguments['status']['level'] == 3:
         board[20][11] = "<^"
         board[20][12] = "~^"
         board[20][13] = "> "
@@ -288,28 +286,28 @@ def main():
     hero_x = 1
     hero_y = 1
     # intro()
-    board = make_board(hero_x, hero_y, status['level'])
+    board = make_board(hero_x, hero_y, status)
     while True:
         if "qp" in board[hero_x][hero_y]:
             if status['mushrooms'] <= status['limit']:
                 status['mushrooms'] += 1
         print_table(status)
         movement = getch()
-        if movement == "w" and ((". " or "= ") in board[hero_x - 1][hero_y]):
+        if movement == "w" and (". " in board[hero_x - 1][hero_y] or "= " in board[hero_x - 1][hero_y]):
             hero_x -= 1
             status['steps'] -= 1
-        elif movement == "s" and ((". " or "= ") in board[hero_x + 1][hero_y]):
+        elif movement == "s" and (". " in board[hero_x + 1][hero_y] or "= " in board[hero_x + 1][hero_y]):
             hero_x += 1
             status['steps'] -= 1
-        elif movement == "a" and ((". " or "= ") in board[hero_x][hero_y - 1]):
+        elif movement == "a" and (". " in board[hero_x][hero_y - 1] or "= " in board[hero_x][hero_y - 1]):
             hero_y -= 1
             status['steps'] -= 1
-        elif movement == "d" and ((". " or "= ") in board[hero_x][hero_y + 1]):
+        elif movement == "d" and (". " in board[hero_x][hero_y + 1] or "= " in board[hero_x][hero_y + 1]):
             hero_y += 1
             status['steps'] -= 1
         elif movement == "q":
             return False
-        board = make_board(hero_x, hero_y, status['level'])
+        board = make_board(hero_x, hero_y, status)
 
 if __name__ == '__main__':
     main()
