@@ -18,7 +18,7 @@ def intro():
     time.sleep(2)
 
 
-def make_board(position_x, position_y, level):
+def make_board(hero_x, hero_y, level):
     arguments = dict(locals().items())  # !!!!!!!!!!!
     if arguments['level'] == 2:
         print("boom")
@@ -54,42 +54,96 @@ def make_board(position_x, position_y, level):
 
     if level == 1:
         # tree placement
-        for loc in range(1, 5):
+        for loc in range(1, 6):
+            board[loc][3] = tree
+        for loc in range(1, 6):
             board[loc][4] = tree
+        for loc in range(1, 6):
+            board[loc][5] = tree
         for loc in (2, 3, 4):
             board[loc][11] = tree
-        for loc in (3, 6, 7, 8):
+        for loc in (2, 3, 4):
+            board[loc][10] = tree
+        for loc in (2, 3, 4, 5, 6):
+            board[loc][9] = tree
+        for loc in (2, 3, 4, 5):
+            board[loc][8] = tree
+        for loc in range(6, 20):
             board[loc][12] = tree
+        for loc in range(7, 19):
+            board[loc][11] = tree
+        for loc in range(10, 17):
+            board[loc][10] = tree
         for loc in range(1, 6):
             board[15][loc] = tree
+        for loc in range(1, 6):
+            board[14][loc] = tree
+        for loc in range(1, 6):
+            board[13][loc] = tree
+        for loc in range(19, 24):
+            board[24][loc] = tree
+        for loc in range(19, 23):
+            board[loc][1] = tree
+        for loc in range(7, 12):
+            board[loc][1] = tree
+        for loc in range(7, 12):
+            board[loc][6] = tree
+        for loc in range(10, 17):
+            board[loc][16] = tree
+        for loc in range(12, 15):
+            board[loc][17] = tree
+        for loc in range(11, 14):
+            board[loc][15] = tree
         board[6][1] = tree
         board[7][2] = tree
         board[12][23] = tree
         # water placement
         for loc in (9, 16, 18):
             board[loc][22] = water
+        for loc in (9, 16, 18):
+            board[loc][21] = water
         for loc in range(11, 15):
             board[loc][20] = water
+        for loc in range(11, 15):
+            board[loc][19] = water
         board[15][21] = bridge
+        board[15][20] = bridge
         board[17][21] = water
+        board[17][22] = water
+        board[10][20] = water
+        board[20][23] = water
         board[19][23] = water
+        board[19][22] = water
         board[10][21] = water
         board[8][23] = water
         # mountain placement
-        for loc in (2, 3):
+        for loc in range(2, 6):
             board[loc][20] = mountain
+        for loc in range(3, 8):
+            board[loc][19] = mountain
+        for loc in range(1, 8):
+            board[loc][21] = mountain
         for loc in (4, 5, 7):
             board[17][loc] = mountain
+        for loc in (4, 5, 7):
+            board[18][loc] = mountain
         board[11][14] = mountain
         board[11][23] = mountain
         board[12][22] = mountain
         board[13][23] = mountain
         board[18][5] = mountain
+        for loc in range(16, 23):
+            board[loc][14] = mountain
+        for loc in range(18, 21):
+            board[loc][15] = mountain
+        for loc in range(5, 8):
+            board[loc][15] = mountain
+        board[18][6] = mountain
         board[22][17] = mountain
         board[23][5] = mountain
         board[23][6] = mountain
         # item placement
-        # if items["basket"] == 1:
+        # if items["basket"] == 0:
         #     board[20][11] = basket
 
     if level == 2:
@@ -99,6 +153,16 @@ def make_board(position_x, position_y, level):
         board[2][8] = tree
         for loc in range(2, 5):
             board[loc][9] = tree
+        for loc in range(2, 5):
+            board[loc][20] = tree
+        for loc in range(20, 24):
+            board[loc][20] = tree
+        for loc in range(19, 24):
+            board[loc][19] = tree
+        for loc in range(19, 23):
+            board[loc][15] = tree
+        for loc in range(19, 25):
+            board[loc][17] = tree
         board[5][12] = tree
         board[4][13] = tree
         board[8][13] = tree
@@ -118,6 +182,58 @@ def make_board(position_x, position_y, level):
         board[13][23] = tree
         board[23][3] = tree
         board[24][4] = tree
+        for loc in range(5, 15):
+            board[17][loc] = water
+        for loc in range(1, 16):
+            board[16][loc] = water
+        for loc in range(1, 16):
+            board[15][loc] = water
+        for loc in range(6, 13):
+            board[18][loc] = water
+        for loc in range(8, 10):
+            board[19][loc] = water
+        for loc in range(16, 24):
+            board[14][loc] = water
+        for loc in range(16, 18):
+            board[15][loc] = water
+        for loc in range(19, 24):
+            board[18][loc] = water
+        for loc in range(20, 24):
+            board[12][loc] = water
+        for loc in range(19, 22):
+            board[13][loc] = water
+        for loc in range(16, 18):
+            board[loc][18] = water
+        for loc in range(20, 24):
+            board[15][loc] = mountain
+        for loc in range(17, 24):
+            board[8][loc] = mountain
+        for loc in range(17, 24):
+            board[loc][14] = mountain
+        for loc in range(18, 24):
+            board[loc][13] = mountain
+        for loc in range(19, 23):
+            board[loc][12] = mountain
+        for loc in range(9, 14):
+            board[loc][8] = mountain
+        for loc in range(9, 12):
+            board[loc][7] = mountain
+        for loc in range(3, 12):
+            board[loc][1] = mountain
+        for loc in range(5, 11):
+            board[loc][2] = mountain
+        for loc in range(9, 14):
+            board[loc][6] = mountain
+        for loc in range(18, 22):
+            board[loc][3] = mountain
+        for loc in range(18, 22):
+            board[loc][2] = mountain
+        for loc in range(20, 24):
+            board[loc][7] = mountain
+        board[15][15] = bridge
+        board[15][14] = bridge
+        board[16][15] = bridge
+        board[18][22] = bridge
 
         # item placement
         board[2][22] = basket
@@ -132,7 +248,7 @@ def make_board(position_x, position_y, level):
         board[22][11] = ".|"
         board[22][12] = "w|"
 
-    board[position_x][position_y] = "@ "
+    board[hero_x][hero_y] = "@ "
 
     for line in board:
         print("".join(line))
@@ -169,31 +285,31 @@ def print_table(inventory):
 def main():
     status = {'steps': 30, 'life': 3, 'level': 2, 'boots': 0,
               'basket': 0, 'limit': 5, 'mushrooms': 0}
-    position_x = 1
-    position_y = 1
+    hero_x = 1
+    hero_y = 1
     # intro()
-    board = make_board(position_x, position_y, status['level'])
+    board = make_board(hero_x, hero_y, status['level'])
     while True:
-        if "qp" in board[position_x][position_y]:
+        if "qp" in board[hero_x][hero_y]:
             if status['mushrooms'] <= status['limit']:
                 status['mushrooms'] += 1
         print_table(status)
         movement = getch()
-        if movement == "w" and ". " in board[position_x - 1][position_y]:
-            position_x -= 1
+        if movement == "w" and ((". " or "= ") in board[hero_x - 1][hero_y]):
+            hero_x -= 1
             status['steps'] -= 1
-        elif movement == "s" and ". " in board[position_x + 1][position_y]:
-            position_x += 1
+        elif movement == "s" and ((". " or "= ") in board[hero_x + 1][hero_y]):
+            hero_x += 1
             status['steps'] -= 1
-        elif movement == "a" and ". " in board[position_x][position_y - 1]:
-            position_y -= 1
+        elif movement == "a" and ((". " or "= ") in board[hero_x][hero_y - 1]):
+            hero_y -= 1
             status['steps'] -= 1
-        elif movement == "d" and ". " in board[position_x][position_y + 1]:
-            position_y += 1
+        elif movement == "d" and ((". " or "= ") in board[hero_x][hero_y + 1]):
+            hero_y += 1
             status['steps'] -= 1
         elif movement == "q":
             return False
-        board = make_board(position_x, position_y, status['level'])
+        board = make_board(hero_x, hero_y, status['level'])
 
 if __name__ == '__main__':
     main()
