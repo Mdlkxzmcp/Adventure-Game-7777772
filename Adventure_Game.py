@@ -4,6 +4,8 @@ import sys
 import tty
 import termios
 
+status = {'steps': 20, 'life': 3, 'boots': 0, 'basket': 0, 'mushrooms': 0}
+
 
 def intro():
     print("\n\n      Welcome to the grand game of 'Mushroom Picking'!\n\n")
@@ -40,9 +42,9 @@ def make_board(position_x, position_y, level):
     secret = bright_green + "# " + end_color  # a tree with a different color
     bridge = dark_groundish + "= " + end_color
     basket = "u "
-    big_basket = "U "
     good_mushroom = dark_purple + "qp" + end_color
     bad_mushroom = bright_purple + "qp" + end_color
+
     board = [[tree] * board_size for num in range(board_size + 1)]
     walls = [tree, water, mountain]
     for x in range(1, board_size):
@@ -117,7 +119,7 @@ def make_board(position_x, position_y, level):
         board[24][4] = tree
 
         # item placement
-        board[2][22] = big_basket
+        board[2][22] = basket
 
     if level == 3:
         board[20][11] = "<^"
@@ -148,6 +150,18 @@ def getch():
     return ch
 
 
+def print_table(inventory):
+    width = 11
+    print("Status:")
+    print("-" * width, "~", sep='')
+    for key, value in inventory.items():
+        if key == 'steps':
+            steps = ("{} - {}".format(value, key))
+        elif key == 'life':
+            life = ("{} - {}".format(value, key))
+    print(steps, '\n', life)
+
+
 def main():
     position_x = 1
     position_y = 1
@@ -155,15 +169,20 @@ def main():
     # intro()
     board = make_board(position_x, position_y, level)
     while True:
+        print_table(status)
         movement = getch()
         if movement == "w" and ". " in board[position_x - 1][position_y]:
             position_x -= 1
+            status['steps'] -= 1
         elif movement == "s" and ". " in board[position_x + 1][position_y]:
             position_x += 1
+            status['steps'] -= 1
         elif movement == "a" and ". " in board[position_x][position_y - 1]:
             position_y -= 1
+            status['steps'] -= 1
         elif movement == "d" and ". " in board[position_x][position_y + 1]:
             position_y += 1
+            status['steps'] -= 1
         elif movement == "q":
             return False
         board = make_board(position_x, position_y, level)
