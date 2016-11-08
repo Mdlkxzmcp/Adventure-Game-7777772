@@ -141,10 +141,10 @@ def make_board(hero_x, hero_y, status):
         board[23][5] = mountain
         board[23][6] = mountain
         # item placement
-        # if items["basket"] == 0:
-        #     board[20][11] = basket
+        if arguments['status']['basket'] == 0:
+            board[20][11] = basket
 
-    if arguments['status']['level'] == 2:
+    elif arguments['status']['level'] == 2:
         board[5][5] = tree
         board[3][7] = tree
         board[3][7] = tree
@@ -232,11 +232,10 @@ def make_board(hero_x, hero_y, status):
         board[15][14] = bridge
         board[16][15] = bridge
         board[18][22] = bridge
+        if arguments['status']['basket'] == 1:
+            board[2][22] = basket
 
-        # item placement
-        board[2][22] = basket
-
-    if arguments['status']['level'] == 3:
+    elif arguments['status']['level'] == 3:
         board[20][11] = "<^"
         board[20][12] = "~^"
         board[20][13] = "> "
@@ -281,7 +280,7 @@ def print_table(inventory):
 
 
 def main():
-    status = {'steps': 30, 'life': 3, 'level': 2, 'boots': 0,
+    status = {'steps': 30, 'life': 3, 'level': 1, 'boots': 0,
               'basket': 0, 'limit': 5, 'mushrooms': 0}
     hero_x = 1
     hero_y = 1
