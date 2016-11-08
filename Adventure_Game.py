@@ -4,8 +4,6 @@ import sys
 import tty
 import termios
 
-status = {'steps': 20, 'life': 3, 'boots': 0, 'basket': 0, 'mushrooms': 0}
-
 
 def intro():
     print("\n\n      Welcome to the grand game of 'Mushroom Picking'!\n\n")
@@ -21,6 +19,9 @@ def intro():
 
 
 def make_board(position_x, position_y, level):
+    arguments = dict(locals().items())  # !!!!!!!!!!!
+    if arguments['level'] == 2:
+        print("boom")
     os.system('clear')
     board_size = 25
     # colors v
@@ -162,13 +163,20 @@ def print_table(inventory):
     print(steps, '\n', life)
 
 
+# def status_update(status):
+
+
 def main():
+    status = {'steps': 30, 'life': 3, 'level': 2, 'boots': 0,
+              'basket': 0, 'limit': 5, 'mushrooms': 0}
     position_x = 1
     position_y = 1
-    level = 1
     # intro()
-    board = make_board(position_x, position_y, level)
+    board = make_board(position_x, position_y, status['level'])
     while True:
+        if "qp" in board[position_x][position_y]:
+            if status['mushrooms'] <= status['limit']:
+                status['mushrooms'] += 1
         print_table(status)
         movement = getch()
         if movement == "w" and ". " in board[position_x - 1][position_y]:
@@ -185,7 +193,7 @@ def main():
             status['steps'] -= 1
         elif movement == "q":
             return False
-        board = make_board(position_x, position_y, level)
+        board = make_board(position_x, position_y, status['level'])
 
 if __name__ == '__main__':
     main()
