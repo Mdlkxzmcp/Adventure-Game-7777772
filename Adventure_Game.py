@@ -53,10 +53,12 @@ def make_board(position_x, position_y, level):
         # tree placement
         for loc in range(1, 5):
             board[loc][4] = tree
-        for loc in (3, 4):
+        for loc in (2, 3, 4):
             board[loc][11] = tree
-        for loc in (3, 4):
+        for loc in (3, 6, 7, 8):
             board[loc][12] = tree
+        for loc in range(1, 6):
+            board[15][loc] = tree
         board[6][1] = tree
         board[7][2] = tree
         board[12][23] = tree
@@ -154,13 +156,13 @@ def main():
     board = make_board(position_x, position_y, level)
     while True:
         movement = getch()
-        if movement == "w":
+        if movement == "w" and ". " in board[position_x - 1][position_y]:
             position_x -= 1
-        elif movement == "s":
+        elif movement == "s" and ". " in board[position_x + 1][position_y]:
             position_x += 1
-        elif movement == "a":
+        elif movement == "a" and ". " in board[position_x][position_y - 1]:
             position_y -= 1
-        elif movement == "d":
+        elif movement == "d" and ". " in board[position_x][position_y + 1]:
             position_y += 1
         elif movement == "q":
             return False
