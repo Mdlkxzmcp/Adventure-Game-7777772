@@ -1,5 +1,8 @@
 import os
 import time
+import sys
+import tty
+import termios
 
 
 def intro():
@@ -18,11 +21,12 @@ def intro():
 def make_board(position_x, position_y, level):
     os.system('clear')
     board_size = 25
+    ground = ". "
     tree = "# "
     water = "~ "  # to be changed into the ~ = symbol
     mountain = "A "
     secret = "!^"
-    bridge = "ss"
+    bridge = "▓▓"
     basket = "u "
     big_basket = "U "
     good_mushroom = "qp"
@@ -31,7 +35,7 @@ def make_board(position_x, position_y, level):
 
     for x in range(1, board_size):
         for y in range(1, board_size - 1):
-            board[x][y] = ". "
+            board[x][y] = ground
 
     if level == 1:
         # tree placement
@@ -93,14 +97,25 @@ def make_board(position_x, position_y, level):
         print("".join(line))
 
 
+def getch():
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(sys.stdin.fileno())
+        ch = sys.stdin.read(1)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return ch
+
+
 def main():
     position_x = 1
     position_y = 1
-    level = 2
+    level = 1
     # intro()
     make_board(position_x, position_y, level)
     while True:
-        movement = input()
+        movement = getch()
         if movement == "w":
             position_x -= 1
         elif movement == "s":
@@ -109,7 +124,7 @@ def main():
             position_y -= 1
         elif movement == "d":
             position_y += 1
-        elif movement == "quit":
+        elif movement == "q":
             return False
         make_board(position_x, position_y, level)
 
