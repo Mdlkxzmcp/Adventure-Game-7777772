@@ -3,6 +3,7 @@ import time
 import sys
 import tty
 import termios
+import random
 
 
 def intro():
@@ -16,9 +17,17 @@ def intro():
      You take your basket, put on your special camo outfit and go mushroom picking.\n\nHint: Don't starve.
     """)
     time.sleep(2)
+    while True:
+        ready = input("Are you ready for the greatest adventure of your life? ").lower()
+        if ready in ("yes", "y"):
+            return False
+        else:
+            time.sleep(1)
+            continue
 
 
-def make_board(position_x, position_y, level):
+def make_board(hero_x, hero_y, status):
+    arguments = dict(locals().items())  # !!!!!!!!!!!
     os.system('clear')
     board_size = 25
     # colors v
@@ -40,16 +49,18 @@ def make_board(position_x, position_y, level):
     secret = bright_green + "# " + end_color  # a tree with a different color
     bridge = dark_groundish + "= " + end_color
     basket = "u "
-    big_basket = "U "
     good_mushroom = dark_purple + "qp" + end_color
     bad_mushroom = bright_purple + "qp" + end_color
+    lifes = blue + "S " + end_color
     board = [[tree] * board_size for num in range(board_size + 1)]
     walls = [tree, water, mountain]
+    shoes = white + "% " + end_color
+    meat = "& "
     for x in range(1, board_size):
         for y in range(1, board_size - 1):
             board[x][y] = ground
 
-    if level == 1:
+    if arguments['status']['level'] == 1:
         # tree placement
         for loc in range(1, 6):
             board[loc][3] = tree
@@ -139,11 +150,15 @@ def make_board(position_x, position_y, level):
         board[22][17] = mountain
         board[23][5] = mountain
         board[23][6] = mountain
+        board[1][23] = lifes
+        board[16][1] = lifes
         # item placement
-        # if items["basket"] == 1:
-        #     board[20][11] = basket
+        if arguments['status']['basket'] == 0:
+            board[20][11] = basket
 
-    if level == 2:
+
+
+    elif arguments['status']['level'] == 2:
         board[5][5] = tree
         board[3][7] = tree
         board[3][7] = tree
@@ -231,11 +246,12 @@ def make_board(position_x, position_y, level):
         board[15][14] = bridge
         board[16][15] = bridge
         board[18][22] = bridge
-        # item placement
-        board[2][22] = big_basket
+        board[24][3] = lifes
+        board[15][18] = shoes
+        if arguments['status']['basket'] == 1:
+            board[2][22] = basket
 
-
-    if level == 3:
+    elif arguments['status']['level'] == 3:
         board[20][11] = "<^"
         board[20][12] = "~^"
         board[20][13] = "> "
@@ -245,7 +261,67 @@ def make_board(position_x, position_y, level):
         board[22][11] = ".|"
         board[22][12] = "w|"
 
-    board[position_x][position_y] = "@ "
+    if arguments['status']['state'] == 0:
+        li2 = []
+        a = 0
+        while a < 15:
+            c = random.randint(1, 23)
+            d = random.randint(1, 23)
+            if board[c][d] == ground:
+                board[c][d] = good_mushroom
+                a += 1
+                li2.extend([c, d])
+                arguments['status']['g_shrooms'].append(li2)
+                li2 = []
+    elif arguments['status']['state'] == 1:
+        a = 0
+        while a < 15:
+            board[arguments['status']['g_shrooms'][a][0]][arguments['status']['g_shrooms'][a][1]] = good_mushroom
+            a += 1
+
+    if arguments['status']['state'] == 0:
+        lia2 = []
+        a = 0
+        while a < 15:
+            c = random.randint(1, 23)
+            d = random.randint(1, 23)
+            if board[c][d] == ground:
+                board[c][d] = bad_mushroom
+                a += 1
+                lia2.extend([c, d])
+                arguments['status']['b_shrooms'].append(lia2)
+                lia2 = []
+    elif arguments['status']['state'] == 1:
+        a = 0
+        while a < 15:
+            board[arguments['status']['b_shrooms'][a][0]][arguments['status']['b_shrooms'][a][1]] = bad_mushroom
+            a += 1
+
+    if arguments['status']['state'] == 0:
+        lib2 = []
+        a = 0
+        while a < 15:
+            c = random.randint(1, 23)
+            d = random.randint(1, 23)
+            if board[c][d] == ground:
+                board[c][d] = meat
+                a += 1
+                lib2.extend([c, d])
+                arguments['status']['mea_t'].append(lib2)
+                lib2 = []
+    elif arguments['status']['state'] == 1:
+        a = 0
+        while a < 15:
+            board[arguments['status']['mea_t'][a][0]][arguments['status']['mea_t'][a][1]] = meat
+            a += 1
+
+
+
+    if good_mushroom in board[hero_x][hero_y]:
+        if status['mushrooms'] <= status['limit']:
+            status['mushrooms'] += 1
+
+    board[hero_x][hero_y] = "@ "
 
     for line in board:
         print("".join(line))
@@ -264,25 +340,61 @@ def getch():
     return ch
 
 
+def print_table(inventory):
+    width = 11
+    print("Status:")
+    print("-" * width, "~", sep='')
+    for key, value in inventory.items():
+        if key == 'steps':
+            steps = ("{} - {}".format(value, key))
+        elif key == 'life':
+            life = ("{} - {}".format(value, key))
+    print(steps, '\n', life)
+
+
+# def status_update(status):
+
+
 def main():
-    position_x = 1
-    position_y = 1
-    level = 1
+    status = {'steps': 30, 'life': 5, 'level': 2, 'boots': 0,
+              'basket': 0, 'limit': 5, 'mushrooms': 0, 'state': 0, 'g_shrooms': [],
+              'b_shrooms':[], 'mea_t':[] }
+    hero_x = 1
+    hero_y = 1
     # intro()
-    board = make_board(position_x, position_y, level)
+    good_shrooms = []
+    li2 = []
+    bad_shrooms = []
+    lia2 = []
+    meat = []
+    lib2 = []
+    board = make_board(hero_x, hero_y, status)
+    status['state'] = 1
     while True:
+        print_table(status)
         movement = getch()
-        if movement == "w" and (". " in board[position_x - 1][position_y] or "= " in board[position_x - 1][position_y]):
-            position_x -= 1
-        elif movement == "s" and (". " in board[position_x + 1][position_y] or "= " in board[position_x + 1][position_y]):
-            position_x += 1
-        elif movement == "a" and (". " in board[position_x][position_y - 1] or "= " in board[position_x][position_y - 1]):
-            position_y -= 1
-        elif movement == "d" and (". " in board[position_x][position_y + 1] or "= " in board[position_x][position_y + 1]):
-            position_y += 1
+        if movement == "w" and (". " in board[hero_x - 1][hero_y] or "= " in board[hero_x - 1][hero_y] or "qp" in board[hero_x - 1][hero_y] or "S "in board[hero_x - 1][hero_y] or "& " in board[hero_x - 1][hero_y] or "% " in board[hero_x - 1][hero_y]):
+            hero_x -= 1
+            status['steps'] -= 1
+        elif movement == "s" and (". " in board[hero_x + 1][hero_y] or "= " in board[hero_x + 1][hero_y] or "qp" in board[hero_x + 1][hero_y] or "S " in board[hero_x + 1][hero_y] or "& " in board[hero_x + 1][hero_y] or "% " in board[hero_x + 1][hero_y]):
+            hero_x += 1
+            status['steps'] -= 1
+        elif movement == "a" and (". " in board[hero_x][hero_y - 1] or "= " in board[hero_x][hero_y - 1] or "qp" in board[hero_x][hero_y - 1] or "S " in board[hero_x][hero_y - 1] or "& " in board[hero_x][hero_y - 1] or "% " in board[hero_x][hero_y - 1]):
+            hero_y -= 1
+            status['steps'] -= 1
+        elif movement == "d" and (". " in board[hero_x][hero_y + 1] or "= " in board[hero_x][hero_y + 1] or "qp" in board[hero_x][hero_y + 1] or "S " in board[hero_x][hero_y + 1] or "& " in board[hero_x][hero_y + 1] or "% " in board[hero_x][hero_y + 1]):
+            hero_y += 1
+            status['steps'] -= 1
         elif movement == "q":
             return False
-        board = make_board(position_x, position_y, level)
+        if status['life'] == 0:
+            print("Your grandma grew impatient and turned you into a mushroom. Game Over.")
+            # return False
+        board = make_board(hero_x, hero_y, status)
+        if status['steps'] == 0:
+            status['life'] -= 1
+            status['steps'] = 30
+
 
 if __name__ == '__main__':
     main()
