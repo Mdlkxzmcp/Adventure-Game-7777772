@@ -4,7 +4,6 @@ import sys
 import tty
 import termios
 import random
-# import hotcold
 
 
 def intro():
@@ -170,7 +169,6 @@ def make_board(hero_x, hero_y, status):
             while a < 15:
                 board[arguments['status']['g_shrooms'][a][0]][arguments['status']['g_shrooms'][a][1]] = good_mushroom
                 a += 1
-
     elif arguments['status']['level'] == 2:
         board[5][5] = tree
         board[3][7] = tree
@@ -273,9 +271,11 @@ def make_board(hero_x, hero_y, status):
         board[22][12] = "w|"
 
     if good_mushroom in board[hero_x][hero_y]:
-        if status['mushrooms'] <= status['limit']:
+        if status['mushrooms'] < status['limit']:
             status['mushrooms'] += 1
 
+    if basket in board[hero_x][hero_y]:
+        status['basket'] += 1
     board[hero_x][hero_y] = "@ "
 
     for line in board:
@@ -304,35 +304,35 @@ def print_table(inventory):
             steps = ("{} - {}".format(value, key))
         elif key == 'life':
             life = ("{} - {}".format(value, key))
-    print(steps, '\n', life)
+        elif key == 'mushrooms':
+            mushrooms = ("{} - {}".format(value, key))
+    print(steps, '\n', life, '\n', mushrooms)
 
 
 # def status_update(status):
 
 
 def main():
-    status = {'steps': 30, 'life': 5, 'level': 1, 'boots': 0,
+    status = {'steps': 100, 'life': 3, 'level': 1, 'boots': 0,
               'basket': 0, 'limit': 5, 'mushrooms': 0, 'state': 0, 'g_shrooms': []}
     hero_x = 1
     hero_y = 1
     # intro()
-    good_shrooms = []
-    li2 = []
     board = make_board(hero_x, hero_y, status)
     status['state'] = 1
     while True:
         print_table(status)
         movement = getch()
-        if movement == "w" and (". " in board[hero_x - 1][hero_y] or "= " in board[hero_x - 1][hero_y] or "qp" in board[hero_x - 1][hero_y] or "S "in board[hero_x - 1][hero_y] or "& " in board[hero_x - 1][hero_y] or "% " in board[hero_x - 1][hero_y]):
+        if movement == "w" and (". " in board[hero_x - 1][hero_y] or "= " in board[hero_x - 1][hero_y] or "qp" in board[hero_x - 1][hero_y] or "S "in board[hero_x - 1][hero_y] or "& " in board[hero_x - 1][hero_y] or "u " in board[hero_x - 1][hero_y]):
             hero_x -= 1
             status['steps'] -= 1
-        elif movement == "s" and (". " in board[hero_x + 1][hero_y] or "= " in board[hero_x + 1][hero_y] or "qp" in board[hero_x + 1][hero_y] or "S " in board[hero_x + 1][hero_y] or "& " in board[hero_x + 1][hero_y] or "% " in board[hero_x + 1][hero_y]):
+        elif movement == "s" and (". " in board[hero_x + 1][hero_y] or "= " in board[hero_x + 1][hero_y] or "qp" in board[hero_x + 1][hero_y] or "S " in board[hero_x + 1][hero_y] or "& " in board[hero_x + 1][hero_y] or "u " in board[hero_x + 1][hero_y]):
             hero_x += 1
             status['steps'] -= 1
-        elif movement == "a" and (". " in board[hero_x][hero_y - 1] or "= " in board[hero_x][hero_y - 1] or "qp" in board[hero_x][hero_y - 1] or "S " in board[hero_x][hero_y - 1] or "& " in board[hero_x][hero_y - 1] or "% " in board[hero_x][hero_y - 1]):
+        elif movement == "a" and (". " in board[hero_x][hero_y - 1] or "= " in board[hero_x][hero_y - 1] or "qp" in board[hero_x][hero_y - 1] or "S " in board[hero_x][hero_y - 1] or "& " in board[hero_x][hero_y - 1] or "u " in board[hero_x][hero_y - 1]):
             hero_y -= 1
             status['steps'] -= 1
-        elif movement == "d" and (". " in board[hero_x][hero_y + 1] or "= " in board[hero_x][hero_y + 1] or "qp" in board[hero_x][hero_y + 1] or "S " in board[hero_x][hero_y + 1] or "& " in board[hero_x][hero_y + 1] or "% " in board[hero_x][hero_y + 1]):
+        elif movement == "d" and (". " in board[hero_x][hero_y + 1] or "= " in board[hero_x][hero_y + 1] or "qp" in board[hero_x][hero_y + 1] or "S " in board[hero_x][hero_y + 1] or "& " in board[hero_x][hero_y + 1] or "u " in board[hero_x][hero_y + 1]):
             hero_y += 1
             status['steps'] -= 1
         elif movement == "q":
@@ -340,10 +340,22 @@ def main():
         if status['life'] == 0:
             print("Your grandma grew impatient and turned you into a mushroom. Game Over.")
             # return False
+        if status['mushrooms'] == 8 and status['state'] == 1:
+            status['level'] = 2
+            status['state'] = 0
+            hero_x = 1
+            hero_y = 1
         board = make_board(hero_x, hero_y, status)
+        print(status['limit'], hero_x, hero_y)
+        if status['basket'] == 1:
+            status['limit'] = 8
+        if status['basket'] == 2:
+            status['limit'] = 15
         if status['steps'] == 0:
             status['life'] -= 1
-            status['steps'] = 30
+            hero_x = 1
+            hero_y = 1
+            status['steps'] = 100
 
 
 if __name__ == '__main__':
