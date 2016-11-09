@@ -16,6 +16,13 @@ def intro():
      You take your basket, put on your special camo outfit and go mushroom picking.\n\nHint: Don't starve.
     """)
     time.sleep(2)
+    while True:
+        ready = input("Are you ready for the greatest adventure of your life? ").lower()
+        if ready in ("yes", "y"):
+            return False
+        else:
+            time.sleep(1)
+            continue
 
 
 def make_board(hero_x, hero_y, status):
@@ -306,7 +313,14 @@ def main():
             status['steps'] -= 1
         elif movement == "q":
             return False
+        if status['life'] == 0:
+            print("Your grandma grew impatient and turned you into a mushroom. Game Over.")
+            # return False
         board = make_board(hero_x, hero_y, status)
+        if status['steps'] == 0:
+            status['life'] -= 1
+            status['steps'] = 30
+
 
 if __name__ == '__main__':
     main()
