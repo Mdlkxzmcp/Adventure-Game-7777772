@@ -5,6 +5,8 @@ import tty
 import termios
 import random
 
+# to do: boss zone triggering the hot cold game, item del after pick up, bug fixing, story between level 1&2 & 2&3.
+
 
 def intro():
     print("\n\n      Welcome to the grand game of 'Mushroom Picking'!\n\n")
@@ -27,7 +29,7 @@ def intro():
 
 
 def make_board(hero_x, hero_y, status):
-    arguments = dict(locals().items())  # !!!!!!!!!!!
+    # arguments = dict(locals().items())  # !!!!!!!!!!!
     os.system('clear')
     board_size = 25
     # colors v
@@ -49,6 +51,7 @@ def make_board(hero_x, hero_y, status):
     secret = bright_green + "# " + end_color  # a tree with a different color
     bridge = dark_groundish + "= " + end_color
     basket = "u "
+    meat = "& "
     good_mushroom = dark_purple + "qp" + end_color
     bad_mushroom = bright_purple + "qp" + end_color
 
@@ -58,7 +61,7 @@ def make_board(hero_x, hero_y, status):
         for y in range(1, board_size - 1):
             board[x][y] = ground
 
-    if arguments['status']['level'] == 1:
+    if status['level'] == 1:
         # tree placement
         for loc in range(1, 6):
             board[loc][3] = tree
@@ -149,27 +152,10 @@ def make_board(hero_x, hero_y, status):
         board[23][5] = mountain
         board[23][6] = mountain
         # item placement
-        if arguments['status']['basket'] == 0:
+        if status['basket'] == 0:
             board[20][11] = basket
 
-        if arguments['status']['state'] == 0:
-            li2 = []
-            a = 0
-            while a < 15:
-                c = random.randint(1, 23)
-                d = random.randint(1, 23)
-                if board[c][d] == ground:
-                    board[c][d] = good_mushroom
-                    a += 1
-                    li2.extend([c, d])
-                    arguments['status']['g_shrooms'].append(li2)
-                    li2 = []
-        elif arguments['status']['state'] == 1:
-            a = 0
-            while a < 15:
-                board[arguments['status']['g_shrooms'][a][0]][arguments['status']['g_shrooms'][a][1]] = good_mushroom
-                a += 1
-    elif arguments['status']['level'] == 2:
+    if status['level'] == 2:
         board[5][5] = tree
         board[3][7] = tree
         board[3][7] = tree
@@ -257,10 +243,10 @@ def make_board(hero_x, hero_y, status):
         board[15][14] = bridge
         board[16][15] = bridge
         board[18][22] = bridge
-        if arguments['status']['basket'] == 1:
+        if status['basket'] == 1:
             board[2][22] = basket
 
-    elif arguments['status']['level'] == 3:
+    elif status['level'] == 3:
         board[20][11] = "<^"
         board[20][12] = "~^"
         board[20][13] = "> "
@@ -270,12 +256,72 @@ def make_board(hero_x, hero_y, status):
         board[22][11] = ".|"
         board[22][12] = "w|"
 
+    if status['level'] == 1:
+        number_of_good_shrooms = 8
+        number_of_bad_shrooms = 4
+    elif status['level'] == 2:
+        number_of_good_shrooms = 15
+        number_of_bad_shrooms = 8
+
+    if status['state'] == 0:
+        a = 0
+        while a < number_of_good_shrooms:
+            c = random.randint(1, 23)
+            d = random.randint(1, 23)
+            if board[c][d] == ground:
+                board[c][d] = good_mushroom
+                a += 1
+                status['g_shrooms'].append([c, d])
+    elif status['state'] == 1:
+        a = 0
+        while a < number_of_good_shrooms:
+            board[status['g_shrooms'][a][0]][status['g_shrooms'][a][1]] = good_mushroom
+            a += 1
+
+    if status['state'] == 0:
+        a = 0
+        while a < number_of_bad_shrooms:
+            c = random.randint(1, 23)
+            d = random.randint(1, 23)
+            if board[c][d] == ground:
+                board[c][d] = bad_mushroom
+                a += 1
+                status['b_shrooms'].append([c, d])
+
+    elif status['state'] == 1:
+        a = 0
+        while a < number_of_bad_shrooms:
+            board[status['b_shrooms'][a][0]][status['b_shrooms'][a][1]] = bad_mushroom
+            a += 1
+
+    if status['state'] == 0:
+        a = 0
+        while a < 8:
+            c = random.randint(1, 23)
+            d = random.randint(1, 23)
+            if board[c][d] == ground:
+                board[c][d] = meat
+                a += 1
+                status['meat'].append([c, d])
+    elif status['state'] == 1:
+        a = 0
+        while a < len(status['meat']):
+            print(a)
+            board[status['meat'][a][0]][status['meat'][a][1]] = meat
+            a += 1
+
     if good_mushroom in board[hero_x][hero_y]:
         if status['mushrooms'] < status['limit']:
             status['mushrooms'] += 1
+            # del status['g_shrooms'][hero_x][hero_y]
+
+    if meat in board[hero_x][hero_y]:
+        status['steps'] += 10
+        # del status['meat'][hero_x][hero_y]
 
     if basket in board[hero_x][hero_y]:
         status['basket'] += 1
+
     board[hero_x][hero_y] = "@ "
 
     for line in board:
@@ -309,12 +355,27 @@ def print_table(inventory):
     print(steps, '\n', life, '\n', mushrooms)
 
 
-# def status_update(status):
+def status_update(hero_x, hero_y, status):
+    if status['mushrooms'] == 8 and status['level'] == 1:
+        status['level'] = 2
+        status['state'] = 0
+        hero_x = 1
+        hero_y = 1
+    if status['basket'] == 1:
+        status['limit'] = 8
+    if status['basket'] == 2:
+        status['limit'] = 15
+    if status['steps'] == 0:
+        status['life'] -= 1
+        hero_x = 1
+        hero_y = 1
+        status['steps'] = 100
+    return hero_x, hero_y, status
 
 
 def main():
-    status = {'steps': 100, 'life': 3, 'level': 1, 'boots': 0,
-              'basket': 0, 'limit': 5, 'mushrooms': 0, 'state': 0, 'g_shrooms': []}
+    status = {'steps': 100, 'life': 3, 'level': 1, 'boots': 0, 'basket': 0, 'limit': 5,
+              'mushrooms': 0, 'state': 0, 'g_shrooms': [], 'b_shrooms': [], 'meat': []}
     hero_x = 1
     hero_y = 1
     # intro()
@@ -340,23 +401,9 @@ def main():
         if status['life'] == 0:
             print("Your grandma grew impatient and turned you into a mushroom. Game Over.")
             # return False
-        if status['mushrooms'] == 8 and status['state'] == 1:
-            status['level'] = 2
-            status['state'] = 0
-            hero_x = 1
-            hero_y = 1
+        hero_x, hero_y, status = status_update(hero_x, hero_y, status)
         board = make_board(hero_x, hero_y, status)
-        print(status['limit'], hero_x, hero_y)
-        if status['basket'] == 1:
-            status['limit'] = 8
-        if status['basket'] == 2:
-            status['limit'] = 15
-        if status['steps'] == 0:
-            status['life'] -= 1
-            hero_x = 1
-            hero_y = 1
-            status['steps'] = 100
-
+        print(hero_x, hero_y, status['state'], status['level'])
 
 if __name__ == '__main__':
     main()
