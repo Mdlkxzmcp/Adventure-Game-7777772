@@ -4,6 +4,7 @@ import sys
 import tty
 import termios
 import random
+import hotcold
 
 # to do: boss zone triggering the hot cold game, item del after pick up, bug fixing, story between level 1&2 & 2&3.
 
@@ -21,8 +22,10 @@ def intro():
     time.sleep(2)
     while True:
         ready = input("Are you ready for the greatest adventure of your life? ").lower()
-        if ready in ("yes", "y"):
+        if ready in ("yes", "y", "ye"):
             return False
+        elif ready in ("quit", "q"):
+            quit()
         else:
             time.sleep(1)
             continue
@@ -375,8 +378,18 @@ def status_update(hero_x, hero_y, status):
     return hero_x, hero_y, status
 
 
+def win_screen():
+    print("You have collected all the mushrooms and satisfied your deceased and beloved grandma. Good job!!!")
+    time.sleep(3)
+    play_again = input("Do you want to play again? :> ").lower()
+    if play_again in ('y', 'yes', 'ye'):
+        main()
+    else:
+        quit()
+
+
 def main():
-    status = {'steps': 100, 'life': 3, 'level': 1, 'boots': 0, 'basket': 0, 'limit': 5,
+    status = {'steps': 100, 'life': 3, 'level': 3, 'boots': 0, 'basket': 0, 'limit': 5,
               'mushrooms': 0, 'state': 0, 'g_shrooms': [], 'b_shrooms': [], 'meat': []}
     hero_x = 1
     hero_y = 1
@@ -384,6 +397,16 @@ def main():
     board = make_board(hero_x, hero_y, status)
     status['state'] = 1
     while True:
+        if status['level'] == 3:
+            for loc_x in (11, 12, 13):
+                for loc_y in (20, 21, 22):
+                    if board[loc_y - 1][loc_x - 1] == "@ ":
+                        while status['life'] > 0:
+                            success = hotcold.main()
+                            if success is True:
+                                win_screen()
+                            else:
+                                status['life'] -= 1
         print_table(status)
         movement = getch()
         if movement == "w" and (". " in board[hero_x - 1][hero_y] or "= " in board[hero_x - 1][hero_y] or "qp" in board[hero_x - 1][hero_y] or "S "in board[hero_x - 1][hero_y] or "& " in board[hero_x - 1][hero_y] or "u " in board[hero_x - 1][hero_y]):
@@ -400,12 +423,11 @@ def main():
             status['steps'] -= 1
         elif movement == "q":
             return False
+        hero_x, hero_y, status = status_update(hero_x, hero_y, status)
+        board = make_board(hero_x, hero_y, status)
         if status['life'] == 0:
             print("Your grandma grew impatient and turned you into a mushroom. Game Over.")
             # return False
-        hero_x, hero_y, status = status_update(hero_x, hero_y, status)
-        board = make_board(hero_x, hero_y, status)
-        print(hero_x, hero_y, status['state'], status['level'])
 
 if __name__ == '__main__':
     main()
