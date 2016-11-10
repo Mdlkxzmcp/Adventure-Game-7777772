@@ -263,52 +263,52 @@ def make_board(hero_x, hero_y, status):
         number_of_good_shrooms = 15
         number_of_bad_shrooms = 8
 
-    if status['state'] == 0:
-        a = 0
-        while a < number_of_good_shrooms:
-            c = random.randint(1, 23)
-            d = random.randint(1, 23)
-            if board[c][d] == ground:
-                board[c][d] = good_mushroom
+    if status['level'] != 3:
+        if status['state'] == 0:
+            a = 0
+            while a < number_of_good_shrooms:
+                c = random.randint(1, 23)
+                d = random.randint(1, 23)
+                if board[c][d] == ground:
+                    board[c][d] = good_mushroom
+                    a += 1
+                    status['g_shrooms'].append([c, d])
+        elif status['state'] == 1:
+            a = 0
+            while a < number_of_good_shrooms:
+                board[status['g_shrooms'][a][0]][status['g_shrooms'][a][1]] = good_mushroom
                 a += 1
-                status['g_shrooms'].append([c, d])
-    elif status['state'] == 1:
-        a = 0
-        while a < number_of_good_shrooms:
-            board[status['g_shrooms'][a][0]][status['g_shrooms'][a][1]] = good_mushroom
-            a += 1
 
-    if status['state'] == 0:
-        a = 0
-        while a < number_of_bad_shrooms:
-            c = random.randint(1, 23)
-            d = random.randint(1, 23)
-            if board[c][d] == ground:
-                board[c][d] = bad_mushroom
+        if status['state'] == 0:
+            a = 0
+            while a < number_of_bad_shrooms:
+                c = random.randint(1, 23)
+                d = random.randint(1, 23)
+                if board[c][d] == ground:
+                    board[c][d] = bad_mushroom
+                    a += 1
+                    status['b_shrooms'].append([c, d])
+
+        elif status['state'] == 1:
+            a = 0
+            while a < number_of_bad_shrooms:
+                board[status['b_shrooms'][a][0]][status['b_shrooms'][a][1]] = bad_mushroom
                 a += 1
-                status['b_shrooms'].append([c, d])
 
-    elif status['state'] == 1:
-        a = 0
-        while a < number_of_bad_shrooms:
-            board[status['b_shrooms'][a][0]][status['b_shrooms'][a][1]] = bad_mushroom
-            a += 1
-
-    if status['state'] == 0:
-        a = 0
-        while a < 8:
-            c = random.randint(1, 23)
-            d = random.randint(1, 23)
-            if board[c][d] == ground:
-                board[c][d] = meat
+        if status['state'] == 0:
+            a = 0
+            while a < 8:
+                c = random.randint(1, 23)
+                d = random.randint(1, 23)
+                if board[c][d] == ground:
+                    board[c][d] = meat
+                    a += 1
+                    status['meat'].append([c, d])
+        elif status['state'] == 1:
+            a = 0
+            while a < len(status['meat']):
+                board[status['meat'][a][0]][status['meat'][a][1]] = meat
                 a += 1
-                status['meat'].append([c, d])
-    elif status['state'] == 1:
-        a = 0
-        while a < len(status['meat']):
-            print(a)
-            board[status['meat'][a][0]][status['meat'][a][1]] = meat
-            a += 1
 
     if good_mushroom in board[hero_x][hero_y]:
         if status['mushrooms'] < status['limit']:
@@ -321,6 +321,8 @@ def make_board(hero_x, hero_y, status):
 
     if basket in board[hero_x][hero_y]:
         status['basket'] += 1
+
+    status['state'] = 1
 
     board[hero_x][hero_y] = "@ "
 
@@ -362,7 +364,7 @@ def status_update(hero_x, hero_y, status):
         hero_x = 1
         hero_y = 1
     if status['basket'] == 1:
-        status['limit'] = 8
+        status['limit'] = 12
     if status['basket'] == 2:
         status['limit'] = 15
     if status['steps'] == 0:
