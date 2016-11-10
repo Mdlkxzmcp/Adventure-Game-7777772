@@ -10,6 +10,7 @@ import hotcold
 
 
 def intro():
+    os.system('clear')
     print("\n\n      Welcome to the grand game of 'Mushroom Picking'!\n\n")
     time.sleep(1)
     print("""'Tales border on the thin line between reality and myth' - Mc' Dingus\n\n
@@ -31,7 +32,7 @@ def intro():
 ▐                          ▐           ▐                             ▐                ▐         """)
     time.sleep(3)
     print("\nCONTROL:\nA - move left\nS - move down\nD - move right\nW - move up\n")
-    print("OBJECTS:\n@ - player\n# - tree\nA - mountain\n~ - water\n= - bridge\nqp- mushroom\n% - shoes\n& - meat\nU - basket\nS - life")
+    print("OBJECTS:\n@ - player\n# - tree\nA - mountain\n~ - water\n= - bridge\nqp- mushroom\n% - shoes\n& - meat\nu - basket\nS - life")
     while True:
         ready = input("\nAre you ready for the greatest adventure of your life? ").lower()
         if ready in ("yes", "y", "ye"):
@@ -270,6 +271,8 @@ def make_board(hero_x, hero_y, status):
             board[15][18] = ground
         if status['basket'] == 1:
             board[2][22] = basket
+        elif status['basket'] > 1:
+            board[2][22] = ground
 
     elif status['level'] == 3:
         board[20][11] = "<^"
@@ -358,6 +361,24 @@ def make_board(hero_x, hero_y, status):
 
     board[hero_x][hero_y] = "@ "
 
+    if status['level'] == 3:
+        if status['state'] == 0:
+            os.system('clear')
+            print("\n\nYou have all the normal shrooms you need. Now, for the final mushroom that dwells", end="")
+            print(" in the sacred section of The Dark Forest...")
+            time.sleep(3)
+            os.system('clear')
+            status['state'] += 1
+        else:
+            for loc_x in (11, 12, 13):
+                for loc_y in (20, 21, 22):
+                    if board[loc_y - 1][loc_x - 1] == "@ ":
+                        while status['life'] > 0:
+                            success = hotcold.main()
+                            if success is True:  # for some reason this never happens
+                                win_screen()
+                            else:
+                                status['life'] -= 1
     for line in board:
         print("".join(line))
 
@@ -365,6 +386,7 @@ def make_board(hero_x, hero_y, status):
 
 
 def getch():
+    """black magic, do not touch"""
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
     try:
@@ -393,8 +415,15 @@ def status_update(hero_x, hero_y, status):
     if status['mushrooms'] == 8 and status['level'] == 1:
         status['level'] = 2
         status['state'] = 0
+        os.system('clear')
+        print("\n\nAfter collecting all the eatible mushrooms in the area you venture deeeper into the dark forest...")
+        time.sleep(3)
+        os.system('clear')
         hero_x = 1
         hero_y = 1
+    if status['level'] == 3 and status['boots'] == 1:
+        status['state'] = 0
+        status['boots'] = 0  # the most innocent hack ever imo
     if status['basket'] == 1:
         status['limit'] = 12
     if status['basket'] == 2:
@@ -420,7 +449,7 @@ def win_screen():
 
 
 def main():
-    status = {'steps': 50, 'max_life': 3, 'life': 3, 'level': 1, 'boots': 0, 'basket': 0, 'limit': 5,
+    status = {'steps': 50, 'max_life': 3, 'life': 3, 'level': 3, 'boots': 0, 'basket': 0, 'limit': 5,
               'mushrooms': 0, 'state': 0, 'g_shrooms': [], 'b_shrooms': [], 'meat': []}
     hero_x = 1
     hero_y = 1
@@ -428,16 +457,6 @@ def main():
     board = make_board(hero_x, hero_y, status)
     status['state'] = 1
     while True:
-        if status['level'] == 3:
-            for loc_x in (11, 12, 13):
-                for loc_y in (20, 21, 22):
-                    if board[loc_y - 1][loc_x - 1] == "@ ":
-                        while status['life'] > 0:
-                            success = hotcold.main()
-                            if success is True:
-                                win_screen()
-                            else:
-                                status['life'] -= 1
         print_table(status)
         movement = getch()
         if movement == "w" and (". " in board[hero_x - 1][hero_y] or "= " in board[hero_x - 1][hero_y] or "qp" in board[hero_x - 1][hero_y] or "S "in board[hero_x - 1][hero_y] or "& " in board[hero_x - 1][hero_y] or "u " in board[hero_x - 1][hero_y] or "% " in board[hero_x - 1][hero_y]):
