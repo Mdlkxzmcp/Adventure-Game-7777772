@@ -4,15 +4,10 @@ import random
 def intro():
     print("""I, the mushroom, am thinking of a 3-digit number. Try to guess what it is.
     Here are some clues:
-
     When I say:    That means:
-
     Cold           No digit is correct.
-
     Warm           One digit is correct but in the wrong position.
-
     Hot            One digit is correct and in the right position.
-
     I have thought up a number. You have 10 guesses to get it.""")
 
 
@@ -44,7 +39,6 @@ def number_pick(the_number):
                 guessed_number.append(int(number))
         except ValueError:
             print("only numbers please~")
-        try_number += 1
         tuple_number = tuple(guessed_number)
         if the_number == tuple_number:
             success = True
@@ -57,6 +51,7 @@ def number_pick(the_number):
                     print("Warm ", end="")
                 elif tuple_number[index - 1] not in the_number:
                     print("Cold ", end="")
+            try_number += 1
     return success
 
 
