@@ -20,8 +20,20 @@ def intro():
      You take your basket, put on your special camo outfit and go mushroom picking.\n\nHint: Don't starve.
     """)
     time.sleep(2)
+    print("Mdlkxzmcp, Rafał Sebestjanski and Pawel Potaczek present:::\n\n")
+    time.sleep(1)
+    print (""" ▄▀▀█▄▄   ▄▀▀█▄   ▄▀▀▄▀▀▀▄  ▄▀▀▄ █      ▄▀▀▀█▄    ▄▀▀▀▀▄   ▄▀▀▄▀▀▀▄  ▄▀▀█▄▄▄▄  ▄▀▀▀▀▄  ▄▀▀▀█▀▀▄
+█ ▄▀   █ ▐ ▄▀ ▀▄ █   █   █ █  █ ▄▀     █  ▄▀  ▀▄ █      █ █   █   █ ▐  ▄▀   ▐ █ █   ▐ █    █  ▐
+▐ █    █   █▄▄▄█ ▐  █▀▀█▀  ▐  █▀▄      ▐ █▄▄▄▄   █      █ ▐  █▀▀█▀    █▄▄▄▄▄     ▀▄   ▐   █
+  █    █  ▄▀   █  ▄▀    █    █   █      █    ▐   ▀▄    ▄▀  ▄▀    █    █    ▌  ▀▄   █     █
+ ▄▀▄▄▄▄▀ █   ▄▀  █     █   ▄▀   █       █          ▀▀▀▀   █     █    ▄▀▄▄▄▄    █▀▀▀    ▄▀
+█     ▐  ▐   ▐   ▐     ▐   █    ▐      █                  ▐     ▐    █    ▐    ▐      █
+▐                          ▐           ▐                             ▐                ▐         """)
+    time.sleep(3)
+    print("\nCONTROL:\nA - move left\nS - move down\nD - move right\nW - move up\n")
+    print("OBJECTS:\n@ - player\n# - tree\nA - mountain\n~ - water\n= - bridge\nqp- mushroom\n% - shoes\n& - meat\nU - basket\nS - life")
     while True:
-        ready = input("Are you ready for the greatest adventure of your life? ").lower()
+        ready = input("\nAre you ready for the greatest adventure of your life? ").lower()
         if ready in ("yes", "y", "ye"):
             return False
         elif ready in ("quit", "q"):
@@ -51,10 +63,11 @@ def make_board(hero_x, hero_y, status):
     tree = dark_green + "# " + end_color
     water = blue + "~ " + end_color
     mountain = gold + "A " + end_color
-    secret = bright_green + "# " + end_color  # a tree with a different color
     bridge = dark_groundish + "= " + end_color
     basket = "u "
-    meat = "& "
+    lifes = blue + "S " + end_color
+    shoes = bright_green + "% " + end_color
+    meat = dark_groundish + "& " + end_color
     good_mushroom = dark_purple + "qp" + end_color
     bad_mushroom = bright_purple + "qp" + end_color
 
@@ -154,6 +167,9 @@ def make_board(hero_x, hero_y, status):
         board[22][17] = mountain
         board[23][5] = mountain
         board[23][6] = mountain
+        if status['max_life'] == 3:
+            board[1][23] = lifes
+
         # item placement
         if status['basket'] == 0:
             board[20][11] = basket
@@ -246,6 +262,12 @@ def make_board(hero_x, hero_y, status):
         board[15][14] = bridge
         board[16][15] = bridge
         board[18][22] = bridge
+        if status['max_life'] == 4:
+            board[24][3] = lifes
+        if status['boots'] == 0:
+            board[15][18] = shoes
+        elif status['boots'] > 0:
+            board[15][18] = ground
         if status['basket'] == 1:
             board[2][22] = basket
 
@@ -325,7 +347,14 @@ def make_board(hero_x, hero_y, status):
     if basket in board[hero_x][hero_y]:
         status['basket'] += 1
 
+    if lifes in board[hero_x][hero_y]:
+        status['max_life'] += 1
+        status['life'] += 1
     status['state'] = 1
+
+    if shoes in board[hero_x][hero_y]:
+        status['steps'] += 50
+        status['boots'] = 1
 
     board[hero_x][hero_y] = "@ "
 
@@ -375,6 +404,8 @@ def status_update(hero_x, hero_y, status):
         hero_x = 1
         hero_y = 1
         status['steps'] = 100
+    if status['boots'] == 1:
+        status['steps'] += 50
     return hero_x, hero_y, status
 
 
@@ -389,11 +420,11 @@ def win_screen():
 
 
 def main():
-    status = {'steps': 100, 'life': 3, 'level': 3, 'boots': 0, 'basket': 0, 'limit': 5,
+    status = {'steps': 50, 'max_life': 3, 'life': 3, 'level': 1, 'boots': 0, 'basket': 0, 'limit': 5,
               'mushrooms': 0, 'state': 0, 'g_shrooms': [], 'b_shrooms': [], 'meat': []}
     hero_x = 1
     hero_y = 1
-    # intro()
+    intro()
     board = make_board(hero_x, hero_y, status)
     status['state'] = 1
     while True:
@@ -409,16 +440,16 @@ def main():
                                 status['life'] -= 1
         print_table(status)
         movement = getch()
-        if movement == "w" and (". " in board[hero_x - 1][hero_y] or "= " in board[hero_x - 1][hero_y] or "qp" in board[hero_x - 1][hero_y] or "S "in board[hero_x - 1][hero_y] or "& " in board[hero_x - 1][hero_y] or "u " in board[hero_x - 1][hero_y]):
+        if movement == "w" and (". " in board[hero_x - 1][hero_y] or "= " in board[hero_x - 1][hero_y] or "qp" in board[hero_x - 1][hero_y] or "S "in board[hero_x - 1][hero_y] or "& " in board[hero_x - 1][hero_y] or "u " in board[hero_x - 1][hero_y] or "% " in board[hero_x - 1][hero_y]):
             hero_x -= 1
             status['steps'] -= 1
-        elif movement == "s" and (". " in board[hero_x + 1][hero_y] or "= " in board[hero_x + 1][hero_y] or "qp" in board[hero_x + 1][hero_y] or "S " in board[hero_x + 1][hero_y] or "& " in board[hero_x + 1][hero_y] or "u " in board[hero_x + 1][hero_y]):
+        elif movement == "s" and (". " in board[hero_x + 1][hero_y] or "= " in board[hero_x + 1][hero_y] or "qp" in board[hero_x + 1][hero_y] or "S " in board[hero_x + 1][hero_y] or "& " in board[hero_x + 1][hero_y] or "u " in board[hero_x + 1][hero_y] or "% " in board[hero_x + 1][hero_y]):
             hero_x += 1
             status['steps'] -= 1
-        elif movement == "a" and (". " in board[hero_x][hero_y - 1] or "= " in board[hero_x][hero_y - 1] or "qp" in board[hero_x][hero_y - 1] or "S " in board[hero_x][hero_y - 1] or "& " in board[hero_x][hero_y - 1] or "u " in board[hero_x][hero_y - 1]):
+        elif movement == "a" and (". " in board[hero_x][hero_y - 1] or "= " in board[hero_x][hero_y - 1] or "qp" in board[hero_x][hero_y - 1] or "S " in board[hero_x][hero_y - 1] or "& " in board[hero_x][hero_y - 1] or "u " in board[hero_x][hero_y - 1] or "% " in board[hero_x][hero_y - 1]):
             hero_y -= 1
             status['steps'] -= 1
-        elif movement == "d" and (". " in board[hero_x][hero_y + 1] or "= " in board[hero_x][hero_y + 1] or "qp" in board[hero_x][hero_y + 1] or "S " in board[hero_x][hero_y + 1] or "& " in board[hero_x][hero_y + 1] or "u " in board[hero_x][hero_y + 1]):
+        elif movement == "d" and (". " in board[hero_x][hero_y + 1] or "= " in board[hero_x][hero_y + 1] or "qp" in board[hero_x][hero_y + 1] or "S " in board[hero_x][hero_y + 1] or "& " in board[hero_x][hero_y + 1] or "u " in board[hero_x][hero_y + 1] or "% " in board[hero_x][hero_y + 1]):
             hero_y += 1
             status['steps'] -= 1
         elif movement == "q":
@@ -427,7 +458,7 @@ def main():
         board = make_board(hero_x, hero_y, status)
         if status['life'] == 0:
             print("Your grandma grew impatient and turned you into a mushroom. Game Over.")
-            # return False
+            return False
 
 if __name__ == '__main__':
     main()
