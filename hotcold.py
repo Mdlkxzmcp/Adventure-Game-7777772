@@ -2,7 +2,7 @@ import random
 
 
 def intro():
-    print("""I, the mushroom, am thinking of a 3-digit number. Try to guess what it is.
+    print("""I, The mushroom, am thinking of a 3-digit number. Try to guess what it is.
     Here are some clues:
     When I say:    That means:
     Cold           No digit is correct.
@@ -22,6 +22,7 @@ def number_generator():
     third_number = random.choice(available)
     available.remove(third_number)
     the_number = (first_number, second_number, third_number)
+    print(the_number)
     return the_number
 
 
@@ -30,32 +31,35 @@ def number_pick(the_number):
     while True:
         if try_number > 10:
             print("\nYou tried but you failed.\n\n")
-            success = False
-            return False
+            success = "no"
+            return False, success
         guessed_number = []
         guess = input("\nGuess #{}: ".format(try_number))
-        try:
-            for number in guess:
-                guessed_number.append(int(number))
-        except ValueError:
-            print("only numbers please~")
-        tuple_number = tuple(guessed_number)
-        if the_number == tuple_number:
-            success = True
-            return False
+        if len(guess) == 3:
+            try:
+                for number in guess:
+                    guessed_number.append(int(number))
+            except ValueError:
+                print("only numbers please~")
+            tuple_number = tuple(guessed_number)
+            if the_number == tuple_number:
+                success = "yes"
+                return False, success
+            else:
+                for index, value in enumerate(tuple_number):
+                    if tuple_number[index - 1] == the_number[index - 1]:
+                        print("Hot ", end="")
+                    elif tuple_number[index - 1] in the_number:
+                        print("Warm ", end="")
+                    elif tuple_number[index - 1] not in the_number:
+                        print("Cold ", end="")
+                try_number += 1
         else:
-            for index, value in enumerate(tuple_number):
-                if tuple_number[index - 1] == the_number[index - 1]:
-                    print("Hot ", end="")
-                elif tuple_number[index - 1] in the_number:
-                    print("Warm ", end="")
-                elif tuple_number[index - 1] not in the_number:
-                    print("Cold ", end="")
-            try_number += 1
+            print("\nOnly 3 numbers please!\n")
     return success
 
 
 def main():
     intro()
     success = number_pick(number_generator())
-    return success
+    return success[1]

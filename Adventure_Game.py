@@ -33,7 +33,8 @@ def intro():
 ▐                          ▐           ▐                             ▐                ▐         """)
     time.sleep(3)
     print("\nCONTROL:\nA - move left\nS - move down\nD - move right\nW - move up\n")
-    print("OBJECTS:\n@ - player\n# - tree\nA - mountain\n~ - water\n= - bridge\nqp- mushroom\n% - shoes\n& - meat\nu - basket\nS - life")
+    print("OBJECTS:\n@ - player\n# - tree\nA - mountain\n~ - water\n= - bridge\nqp - mushroosm\n% - shoes\n& - meat")
+    print("u - basket\nS - extra life")
     while True:
         ready = input("\nAre you ready for the greatest adventure of your life? ").lower()
         if ready in ("yes", "y", "ye"):
@@ -375,7 +376,7 @@ def make_board(hero_x, hero_y, status):
     status['state'] = 1
 
     if shoes in board[hero_x][hero_y]:
-        status['steps'] += 50
+        status['steps'] += 55
         status['boots'] = 1
 
     board[hero_x][hero_y] = "@ "
@@ -429,7 +430,7 @@ def status_update(hero_x, hero_y, status):
         os.system('clear')
         hero_x = 1
         hero_y = 1
-    if status['mushrooms'] == 15 and status['state'] == 1:
+    if status['mushrooms'] == 23 and status['state'] == 1 and status['basket'] == 2:
         status['g_shrooms'] = []
         status['b_shrooms'] = []
         status['meat'] = []
@@ -437,13 +438,16 @@ def status_update(hero_x, hero_y, status):
         os.system('clear')
         print("\n\nYou have all the normal shrooms you need. Now, for the final mushroom that dwells", end="")
         print(" in the sacred section of The Dark Forest...")
-        time.sleep(3)
+        time.sleep(4)
         os.system('clear')
+        hero_x = 1
+        hero_y = 1
         status['state'] = 0
+        status['basket'] = 0
     if status['basket'] == 1:
         status['limit'] = 12
     if status['basket'] == 2:
-        status['limit'] = 15
+        status['limit'] = 23
     if status['steps'] == 0:
         status['life'] -= 1
         hero_x = 1
@@ -459,23 +463,19 @@ def boss_fight(status):
     Triggers either game_over or win_screen"""
     while True:
         success = hotcold.main()
-        if success is True:
+        if success is "yes":
             return False
-        elif success is False:
+        elif success is "no":
             status['life'] -= 1
             if status['life'] == 0:
                 return False
-    if status['life'] > 0:
-        win_screen()
-    else:
-        game_over()
 
 
 def win_screen():
     """shows the game won screen and asks the player about playing again"""
     print("You have collected all the mushrooms and satisfied your deceased and beloved grandma. Good job!!!")
     time.sleep(3)
-    play_again = input("Do you want to play again? :> ").lower()
+    play_again = input("\nDo you want to play again? :> ").lower()
     if play_again in ('y', 'yes', 'ye'):
         main()
     else:
@@ -503,10 +503,15 @@ def main():
     status['state'] = 1
     while True:
         hero_x, hero_y, status = status_update(hero_x, hero_y, status)
-        if status['level'] == 3 and hero_x in range(19, 24) and hero_y in range(10, 14):
+        if status['level'] == 3 and hero_x in range(19, 24) and hero_y in range(10, 15):
             boss_fight(status)
+            os.system('clear')
+            if status['life'] > 0:
+                win_screen()
+            else:
+                game_over()
+        board = make_board(hero_x, hero_y, status)
         if status['level'] != 3:
-            board = make_board(hero_x, hero_y, status)
             print_table(status)
         movement = getch()
         if movement == "w" and (". " in board[hero_x - 1][hero_y] or "= " in board[hero_x - 1][hero_y] or "qp" in board[hero_x - 1][hero_y] or "S "in board[hero_x - 1][hero_y] or "& " in board[hero_x - 1][hero_y] or "u " in board[hero_x - 1][hero_y] or "% " in board[hero_x - 1][hero_y]):
@@ -529,8 +534,13 @@ def main():
             return False
         board = make_board(hero_x, hero_y, status)
         if status['life'] == 0:
-            print("Your grandma grew impatient and turned you into a mushroom. Game Over.")
-            return False
+            print("\nYour grandma grew impatient and turned you into a mushroom. Game Over.")
+            time.sleep(1.5)
+            play_again = input("\nDo you want to try again? ").lower()
+            if play_again in ('y', 'yes', 'ye'):
+                main()
+            else:
+                return False
 
 if __name__ == '__main__':
     main()
