@@ -287,9 +287,11 @@ def make_board(hero_x, hero_y, status):
     if status['level'] == 1:
         number_of_good_shrooms = 8
         number_of_bad_shrooms = 4
+        amount_of_meat = 4
     elif status['level'] == 2:
         number_of_good_shrooms = 15
         number_of_bad_shrooms = 8
+        amount_of_meat = 5
 
     if status['level'] != 3:
         if status['state'] == 0:
@@ -300,11 +302,12 @@ def make_board(hero_x, hero_y, status):
                 if board[c][d] == ground:
                     board[c][d] = good_mushroom
                     a += 1
-                    status['g_shrooms'].append([c, d])
+                    status['g_shrooms'].append([c, d, 1])
         elif status['state'] == 1:
             a = 0
             while a < number_of_good_shrooms:
-                board[status['g_shrooms'][a][0]][status['g_shrooms'][a][1]] = good_mushroom
+                if status['g_shrooms'][a][2] == 1:
+                    board[status['g_shrooms'][a][0]][status['g_shrooms'][a][1]] = good_mushroom
                 a += 1
 
         if status['state'] == 0:
@@ -325,27 +328,32 @@ def make_board(hero_x, hero_y, status):
 
         if status['state'] == 0:
             a = 0
-            while a < 8:
+            while a < amount_of_meat:
                 c = random.randint(1, 23)
                 d = random.randint(1, 23)
                 if board[c][d] == ground:
                     board[c][d] = meat
                     a += 1
-                    status['meat'].append([c, d])
+                    status['meat'].append([c, d, 1])
         elif status['state'] == 1:
             a = 0
-            while a < len(status['meat']):
-                board[status['meat'][a][0]][status['meat'][a][1]] = meat
+            while a < amount_of_meat:
+                if status['meat'][a][2] == 1:
+                    board[status['meat'][a][0]][status['meat'][a][1]] = meat
                 a += 1
 
     if good_mushroom in board[hero_x][hero_y]:
         if status['mushrooms'] < status['limit']:
             status['mushrooms'] += 1
-            # del status['g_shrooms'][hero_x][hero_y]
+            for a in range(0, number_of_good_shrooms):
+                if (status['g_shrooms'][a][0] == hero_x) and (status['g_shrooms'][a][1] == hero_y):
+                    status['g_shrooms'][a][2] = 0
 
     if meat in board[hero_x][hero_y]:
         status['steps'] += 10
-        # del status['meat'][hero_x][hero_y]
+        for a in range(0, amount_of_meat):
+            if (status['meat'][a][0] == hero_x) and (status['meat'][a][1] == hero_y):
+                status['meat'][a][2] = 0
 
     if basket in board[hero_x][hero_y]:
         status['basket'] += 1
@@ -361,24 +369,6 @@ def make_board(hero_x, hero_y, status):
 
     board[hero_x][hero_y] = "@ "
 
-    if status['level'] == 3:
-        if status['state'] == 0:
-            os.system('clear')
-            print("\n\nYou have all the normal shrooms you need. Now, for the final mushroom that dwells", end="")
-            print(" in the sacred section of The Dark Forest...")
-            time.sleep(3)
-            os.system('clear')
-            status['state'] += 1
-        else:
-            for loc_x in (11, 12, 13):
-                for loc_y in (20, 21, 22):
-                    if board[loc_y - 1][loc_x - 1] == "@ ":
-                        while status['life'] > 0:
-                            success = hotcold.main()
-                            if success is True:  # for some reason this never happens
-                                win_screen()
-                            else:
-                                status['life'] -= 1
     for line in board:
         print("".join(line))
 
@@ -414,6 +404,9 @@ def print_table(inventory):
 def status_update(hero_x, hero_y, status):
     if status['mushrooms'] == 8 and status['level'] == 1:
         status['level'] = 2
+        status['g_shrooms'] = []
+        status['b_shrooms'] = []
+        status['meat'] = []
         status['state'] = 0
         os.system('clear')
         print("\n\nAfter collecting all the eatible mushrooms in the area you venture deeeper into the dark forest...")
@@ -421,9 +414,17 @@ def status_update(hero_x, hero_y, status):
         os.system('clear')
         hero_x = 1
         hero_y = 1
-    if status['level'] == 3 and status['boots'] == 1:
+    if status['mushrooms'] == 15 and status['state'] == 1:
+        status['g_shrooms'] = []
+        status['b_shrooms'] = []
+        status['meat'] = []
+        status['level'] = 3
+        os.system('clear')
+        print("\n\nYou have all the normal shrooms you need. Now, for the final mushroom that dwells", end="")
+        print(" in the sacred section of The Dark Forest...")
+        time.sleep(3)
+        os.system('clear')
         status['state'] = 0
-        status['boots'] = 0  # the most innocent hack ever imo
     if status['basket'] == 1:
         status['limit'] = 12
     if status['basket'] == 2:
@@ -438,6 +439,21 @@ def status_update(hero_x, hero_y, status):
     return hero_x, hero_y, status
 
 
+def boss_fight(status):
+    while True:
+        success = hotcold.main()
+        if success is True:
+            return False
+        elif success is False:
+            status['life'] -= 1
+            if status['life'] == 0:
+                return False
+    if status['life'] > 0:
+        win_screen()
+    else:
+        game_over()
+
+
 def win_screen():
     print("You have collected all the mushrooms and satisfied your deceased and beloved grandma. Good job!!!")
     time.sleep(3)
@@ -448,8 +464,18 @@ def win_screen():
         quit()
 
 
+def game_over():
+    print("You lost!")
+    time.sleep(3)
+    play_again = input("Do you want to try again? ").lower()
+    if play_again in ('y', 'yes', 'ye'):
+        main()
+    else:
+        quit()
+
+
 def main():
-    status = {'steps': 50, 'max_life': 3, 'life': 3, 'level': 3, 'boots': 0, 'basket': 0, 'limit': 5,
+    status = {'steps': 50, 'max_life': 3, 'life': 3, 'level': 1, 'boots': 0, 'basket': 0, 'limit': 5,
               'mushrooms': 0, 'state': 0, 'g_shrooms': [], 'b_shrooms': [], 'meat': []}
     hero_x = 1
     hero_y = 1
@@ -457,23 +483,31 @@ def main():
     board = make_board(hero_x, hero_y, status)
     status['state'] = 1
     while True:
-        print_table(status)
+        hero_x, hero_y, status = status_update(hero_x, hero_y, status)
+        if status['level'] == 3 and hero_x in range(19, 24) and hero_y in range(10, 14):
+            boss_fight(status)
+        if status['level'] != 3:
+            board = make_board(hero_x, hero_y, status)
+            print_table(status)
         movement = getch()
         if movement == "w" and (". " in board[hero_x - 1][hero_y] or "= " in board[hero_x - 1][hero_y] or "qp" in board[hero_x - 1][hero_y] or "S "in board[hero_x - 1][hero_y] or "& " in board[hero_x - 1][hero_y] or "u " in board[hero_x - 1][hero_y] or "% " in board[hero_x - 1][hero_y]):
             hero_x -= 1
-            status['steps'] -= 1
+            if status['level'] != 3:
+                status['steps'] -= 1
         elif movement == "s" and (". " in board[hero_x + 1][hero_y] or "= " in board[hero_x + 1][hero_y] or "qp" in board[hero_x + 1][hero_y] or "S " in board[hero_x + 1][hero_y] or "& " in board[hero_x + 1][hero_y] or "u " in board[hero_x + 1][hero_y] or "% " in board[hero_x + 1][hero_y]):
             hero_x += 1
-            status['steps'] -= 1
+            if status['level'] != 3:
+                status['steps'] -= 1
         elif movement == "a" and (". " in board[hero_x][hero_y - 1] or "= " in board[hero_x][hero_y - 1] or "qp" in board[hero_x][hero_y - 1] or "S " in board[hero_x][hero_y - 1] or "& " in board[hero_x][hero_y - 1] or "u " in board[hero_x][hero_y - 1] or "% " in board[hero_x][hero_y - 1]):
             hero_y -= 1
-            status['steps'] -= 1
+            if status['level'] != 3:
+                status['steps'] -= 1
         elif movement == "d" and (". " in board[hero_x][hero_y + 1] or "= " in board[hero_x][hero_y + 1] or "qp" in board[hero_x][hero_y + 1] or "S " in board[hero_x][hero_y + 1] or "& " in board[hero_x][hero_y + 1] or "u " in board[hero_x][hero_y + 1] or "% " in board[hero_x][hero_y + 1]):
             hero_y += 1
-            status['steps'] -= 1
+            if status['level'] != 3:
+                status['steps'] -= 1
         elif movement == "q":
             return False
-        hero_x, hero_y, status = status_update(hero_x, hero_y, status)
         board = make_board(hero_x, hero_y, status)
         if status['life'] == 0:
             print("Your grandma grew impatient and turned you into a mushroom. Game Over.")

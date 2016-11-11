@@ -29,7 +29,7 @@ def number_pick(the_number):
     try_number = 1
     while True:
         if try_number > 10:
-            print("You tried but you failed.")
+            print("\nYou tried but you failed.\n\n")
             success = False
             return False
         guessed_number = []
