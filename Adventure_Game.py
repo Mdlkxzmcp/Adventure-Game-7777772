@@ -10,6 +10,7 @@ import hotcold
 
 
 def intro():
+    """intro screen, self explanatory"""
     os.system('clear')
     print("\n\n      Welcome to the grand game of 'Mushroom Picking'!\n\n")
     time.sleep(1)
@@ -45,6 +46,8 @@ def intro():
 
 
 def make_board(hero_x, hero_y, status):
+    """most complex function here but all it really does is creating the board itself. Look at comments inside to learn
+    more about specific parts of the function"""
     # arguments = dict(locals().items())  # !!!!!!!!!!!
     os.system('clear')
     board_size = 25
@@ -72,11 +75,13 @@ def make_board(hero_x, hero_y, status):
     good_mushroom = dark_purple + "qp" + end_color
     bad_mushroom = bright_purple + "qp" + end_color
 
+    # the creation of a (in this case) 25x25 board that is all trees at first
     board = [[tree] * board_size for num in range(board_size + 1)]
     walls = [tree, water, mountain]
     for x in range(1, board_size):
         for y in range(1, board_size - 1):
             board[x][y] = ground
+            # now the insides are all turned into ground symbols so that they make a 24x24 board inside the 25x25 one
 
     if status['level'] == 1:
         # tree placement
@@ -168,10 +173,11 @@ def make_board(hero_x, hero_y, status):
         board[22][17] = mountain
         board[23][5] = mountain
         board[23][6] = mountain
+        # life placement
         if status['max_life'] == 3:
             board[1][23] = lifes
 
-        # item placement
+        # basket placement
         if status['basket'] == 0:
             board[20][11] = basket
 
@@ -265,6 +271,7 @@ def make_board(hero_x, hero_y, status):
         board[18][22] = bridge
         if status['max_life'] == 4:
             board[24][3] = lifes
+        # shoes placement
         if status['boots'] == 0:
             board[15][18] = shoes
         elif status['boots'] > 0:
@@ -284,6 +291,7 @@ def make_board(hero_x, hero_y, status):
         board[22][11] = ".|"
         board[22][12] = "w|"
 
+    # depending on the level a given number is set to the variables used in the random placement element generation
     if status['level'] == 1:
         number_of_good_shrooms = 8
         number_of_bad_shrooms = 4
@@ -294,6 +302,7 @@ def make_board(hero_x, hero_y, status):
         amount_of_meat = 5
 
     if status['level'] != 3:
+        # the status dictionary has a state variable that tells this function if it should either create new elements...
         if status['state'] == 0:
             a = 0
             while a < number_of_good_shrooms:
@@ -302,7 +311,8 @@ def make_board(hero_x, hero_y, status):
                 if board[c][d] == ground:
                     board[c][d] = good_mushroom
                     a += 1
-                    status['g_shrooms'].append([c, d, 1])
+                    status['g_shrooms'].append([c, d, 1])  # the "1" is changed to "0" when the element should be hidden
+        # or load them from the already made list variable from within the status dictionary
         elif status['state'] == 1:
             a = 0
             while a < number_of_good_shrooms:
@@ -342,6 +352,7 @@ def make_board(hero_x, hero_y, status):
                     board[status['meat'][a][0]][status['meat'][a][1]] = meat
                 a += 1
 
+    # if the player steps on an element that should dissapear the state of the element itself is changed
     if good_mushroom in board[hero_x][hero_y]:
         if status['mushrooms'] < status['limit']:
             status['mushrooms'] += 1
@@ -369,6 +380,7 @@ def make_board(hero_x, hero_y, status):
 
     board[hero_x][hero_y] = "@ "
 
+    # after finally creating the whole board it's time to print it to the screen!
     for line in board:
         print("".join(line))
 
@@ -385,9 +397,11 @@ def getch():
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
+    # I don't even know man.
 
 
 def print_table(inventory):
+    """prints steps and life left as well as total number of collected mushrooms"""
     width = 11
     print("Status:")
     print("-" * width, "~", sep='')
@@ -402,6 +416,7 @@ def print_table(inventory):
 
 
 def status_update(hero_x, hero_y, status):
+    """function that changes various variables according to set condition. Takes hero_x, hero_y and status as args"""
     if status['mushrooms'] == 8 and status['level'] == 1:
         status['level'] = 2
         status['g_shrooms'] = []
@@ -433,13 +448,15 @@ def status_update(hero_x, hero_y, status):
         status['life'] -= 1
         hero_x = 1
         hero_y = 1
-        status['steps'] = 100
+        status['steps'] = 50
     if status['boots'] == 1:
         status['steps'] += 50
     return hero_x, hero_y, status
 
 
 def boss_fight(status):
+    """function that calls the hotcold imported module once the player gets close enough to the last mushroom.
+    Triggers either game_over or win_screen"""
     while True:
         success = hotcold.main()
         if success is True:
@@ -455,6 +472,7 @@ def boss_fight(status):
 
 
 def win_screen():
+    """shows the game won screen and asks the player about playing again"""
     print("You have collected all the mushrooms and satisfied your deceased and beloved grandma. Good job!!!")
     time.sleep(3)
     play_again = input("Do you want to play again? :> ").lower()
@@ -465,7 +483,8 @@ def win_screen():
 
 
 def game_over():
-    print("You lost!")
+    """shows the game over message and asks the player about trying again"""
+    print("You lost to the one and only true mushroom.\n")
     time.sleep(3)
     play_again = input("Do you want to try again? ").lower()
     if play_again in ('y', 'yes', 'ye'):
