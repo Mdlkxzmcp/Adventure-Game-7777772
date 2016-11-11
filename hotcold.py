@@ -22,7 +22,6 @@ def number_generator():
     third_number = random.choice(available)
     available.remove(third_number)
     the_number = (first_number, second_number, third_number)
-    print(the_number)
     return the_number
 
 

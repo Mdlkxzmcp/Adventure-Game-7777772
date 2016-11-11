@@ -187,6 +187,7 @@ def make_board(hero_x, hero_y, status):
         board[3][7] = tree
         board[3][7] = tree
         board[2][8] = tree
+        board[20][22] = tree
         for loc in range(2, 5):
             board[loc][9] = tree
         for loc in range(2, 5):
@@ -266,6 +267,11 @@ def make_board(hero_x, hero_y, status):
             board[loc][2] = mountain
         for loc in range(20, 24):
             board[loc][7] = mountain
+        board[15][23] = mountain
+        board[11][20] = mountain
+        board[11][19] = mountain
+        board[12][23] = mountain
+        board[9][22] = mountain
         board[15][15] = bridge
         board[15][14] = bridge
         board[16][15] = bridge
@@ -300,7 +306,7 @@ def make_board(hero_x, hero_y, status):
     elif status['level'] == 2:
         number_of_good_shrooms = 15
         number_of_bad_shrooms = 8
-        amount_of_meat = 5
+        amount_of_meat = 7
 
     if status['level'] != 3:
         # the status dictionary has a state variable that tells this function if it should either create new elements...
@@ -362,7 +368,7 @@ def make_board(hero_x, hero_y, status):
                     status['g_shrooms'][a][2] = 0
 
     if meat in board[hero_x][hero_y]:
-        status['steps'] += 10
+        status['steps'] += 11
         for a in range(0, amount_of_meat):
             if (status['meat'][a][0] == hero_x) and (status['meat'][a][1] == hero_y):
                 status['meat'][a][2] = 0
@@ -426,7 +432,7 @@ def status_update(hero_x, hero_y, status):
         status['state'] = 0
         os.system('clear')
         print("\n\nAfter collecting all the eatible mushrooms in the area you venture deeeper into the dark forest...")
-        time.sleep(3)
+        time.sleep(5)
         os.system('clear')
         hero_x = 1
         hero_y = 1
@@ -438,7 +444,7 @@ def status_update(hero_x, hero_y, status):
         os.system('clear')
         print("\n\nYou have all the normal shrooms you need. Now, for the final mushroom that dwells", end="")
         print(" in the sacred section of The Dark Forest...")
-        time.sleep(4)
+        time.sleep(5)
         os.system('clear')
         hero_x = 1
         hero_y = 1
